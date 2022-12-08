@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{ title }} - Chat 13</title>
+    </head>
+    <body>
+        <div>
+            Chat13:
+            <a href="{{ url_for('index') }}">Start</a>
+            {% if current_user.is_anonymous %}
+            <a href="{{ url_for('login') }}">Log In</a>
+            <a href="{{ url_for('register') }}">Register</a>
+            {% else %}
+            <a href="{{ url_for('logout') }}">Log Out</a>
+            {% endif %}
+        </div>
+        <hr>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        {% block web_page %}{% endblock %}
+    </body>
+</html>
