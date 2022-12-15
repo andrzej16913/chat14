@@ -1,25 +1,7 @@
 {% extends "base.html" %}
 
+{% from 'bootstrap5/form.html' import render_form %}
+
 {% block web_page %}
-    <h1>Register</h1>
-    <form action="" method="post">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.username.label }}<br>
-            {{ form.username(size=32) }}<br>
-        </p>
-        <p>
-            {{ form.email.label }}<br>
-            {{ form.email(size=64) }}<br>
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(size=32) }}<br>
-        </p>
-        <p>
-            {{ form.password_check.label }}<br>
-            {{ form.password_check(size=32) }}<br>
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
+    {{ render_form(form) }}
 {% endblock %}

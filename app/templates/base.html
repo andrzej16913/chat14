@@ -1,29 +1,41 @@
 <!doctype html>
 <html>
     <head>
+        {% block head %}
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        {% block styles %}
+            <!-- Bootstrap CSS -->
+            {{ bootstrap.load_css() }}
+        {% endblock %}
+
         <title>{{ title }} - Chat 13</title>
+        {% endblock %}
     </head>
     <body>
-        <div>
-            Chat13:
-            <a href="{{ url_for('index') }}">Start</a>
-            {% if current_user.is_anonymous %}
-            <a href="{{ url_for('login') }}">Log In</a>
-            <a href="{{ url_for('register') }}">Register</a>
-            {% else %}
-            <a href="{{ url_for('logout') }}">Log Out</a>
-            {% endif %}
+        {% from 'bootstrap5/nav.html' import render_nav_item %}
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <div class="navbar-nav mr-auto">
+                    {{ render_nav_item('index', 'Home') }}
+                    {% if current_user.is_anonymous %}
+                    {{ render_nav_item('login', 'Log In') }}
+                    {{ render_nav_item('register', 'Register') }}
+                    {% else %}
+                    {{ render_nav_item('logout', 'Log Out') }}
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+        
+        {% from 'bootstrap5/utils.html' import render_messages %}
+        {{ render_messages() }}
+        
+        <div class="container">
+            {% block web_page %}{% endblock %}
         </div>
-        <hr>
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul>
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-        {% block web_page %}{% endblock %}
     </body>
 </html>
