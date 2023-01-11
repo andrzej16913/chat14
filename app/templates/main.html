@@ -3,6 +3,10 @@
 {% block web_page %}
     {% if current_user.is_authenticated %}
         <h1>Logged in as {{ current_user.username }}!</h1>
+        <h5>Rooms avaible on this server:</h5>
+        {% for room in rooms %}
+            <a href="/room{{ room.name }}">{{ room.name }}</a><br>
+        {% endfor %}
     {% else %}
         <h1>Welcome to chat13!</h1>
     {% endif %}

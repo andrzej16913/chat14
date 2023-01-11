@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block web_page %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    <ul id="posts">
+    {% for post in posts %}
+        {{ post.webview() }}<br>
+    {% endfor %}
+    </ul>
+    <form id="form" action="">
+        <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io("/{{ namespace }}");
+
+        var posts = document.getElementById('posts');
+        var form = document.getElementById('form');
+        var input = document.getElementById('input');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('new_post', input.value);
+                input.value = '';
+            }
+        });
+
+        socket.on('feed_update', function(msg) {
+            var item = document.createElement('li');
+            item.textContent = msg;
+            posts.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
+{% endblock %}

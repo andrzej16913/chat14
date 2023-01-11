@@ -1,10 +1,21 @@
 from flask import render_template, flash, redirect, url_for, request
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 
-from app import app, db
+from app import app, db, rooms
 from app.forms import LoginForm, RegisterForm
-from app.models import User
+from app.models import User, Room, Post
+
+
+@app.route('/room/<name>')
+@login_required
+def room(name):
+    room = db.session.execute(db.select(Room).filter_by(name='/{}'.format(name))).scalar_one_or_none()
+    if room:
+        posts = db.session.execute(db.select(Post).filter_by(room_id=room.id)).scalars().all()
+        return render_template('session.html', title='Room - ' + name, namespace=name, posts=posts)
+    else:
+        return redirect(url_for('index'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -57,5 +68,5 @@ def register():
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('main.html', title='Start page')
+    return render_template('main.html', title='Start page', rooms=rooms)
 
