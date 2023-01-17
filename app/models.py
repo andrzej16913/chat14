@@ -61,9 +61,21 @@ class Post(db.Model):
     date = db.Column(db.DateTime(), nullable=False)
     msg = db.Column(db.String(256), nullable=False)
 
+    def username(self):
+        return db.session.execute(db.select(User).filter_by(id=self.user_id)).scalar_one().username
+    
+    def pretty_date(self):
+        return '{:%Y-%m-%d %H:%M}'.format(self.date)
+
     def webview(self):
-        user = db.session.execute(db.select(User).filter_by(id=self.user_id)).scalar_one()
         #user = User.query.filter_by(username=form.username.data).first()
-        return "{} on {} said: {}".format(user.username, self.date, self.msg)
+        return "{} on {} said: {}".format(self.username(), self.pretty_date(), self.msg)
+    
+    def as_dict(self):
+        diction = {}
+        diction['user'] = self.username()
+        diction['date'] = self.pretty_date()
+        diction['msg'] = self.msg
+        return diction
         
 #socketio.on_namespace(Room('/test'))
