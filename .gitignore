@@ -130,3 +130,9 @@ dmypy.json
 
 # Local database
 local.db
+
+# Certificate files
+cert.pem
+key.pem
+.well-known
+

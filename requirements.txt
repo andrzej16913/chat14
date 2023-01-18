@@ -10,6 +10,7 @@ Flask-Migrate==4.0.0
 Flask-SocketIO==5.3.2
 Flask-SQLAlchemy==3.0.2
 Flask-WTF==1.0.1
+gevent==22.10.2
 greenlet==2.0.1
 h11==0.14.0
 idna==3.4
@@ -20,8 +21,10 @@ MarkupSafe==2.1.1
 python-dotenv==0.21.0
 python-engineio==4.3.4
 python-socketio==5.7.2
-simple-websocket==0.9.0
 SQLAlchemy==1.4.44
+uWSGI==2.0.21
 Werkzeug==2.2.2
 wsproto==1.2.0
 WTForms==3.0.1
+zope.event==4.6
+zope.interface==5.5.2
