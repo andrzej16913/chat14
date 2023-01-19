@@ -22,8 +22,11 @@ you can edit this file. More instructions are in the comments in this file
 
     $ python make_room.py
 
-To use https you need certificate.
-Generate one yourself and get real certificate from CA
+To use https you need certificate. You can generate one yourself like this:
+
+    $ openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
+
+or you can get real certificate from CA
 
 Usage
 -
