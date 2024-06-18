@@ -1,8 +1,8 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
-from werkzeug.urls import url_parse
+from urllib.parse import urlsplit
 
-from app import app, db, rooms
+from app import app, rooms
 from app.forms import LoginForm, RegisterForm
 from app.models import User, Room, Post
 
@@ -10,9 +10,9 @@ from app.models import User, Room, Post
 @app.route('/room/<name>')
 @login_required
 def room(name):
-    room = db.session.execute(db.select(Room).filter_by(name='/{}'.format(name))).scalar_one_or_none()
+    room = Room.objects(name='/{}'.format(name)).first()
     if room:
-        posts = db.session.execute(db.select(Post).filter_by(room_id=room.id)).scalars().all()
+        posts = Post.objects(room=room).order_by('date')
         return render_template('session.html', title='Room - ' + name, namespace=name, posts=posts)
     else:
         return redirect(url_for('index'))
@@ -25,7 +25,7 @@ def login():
     
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        user = User.objects(username=form.username.data).first()
         if user is None:
             flash('Invalid username')
             return redirect(url_for('login'))
@@ -35,7 +35,7 @@ def login():
         
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
+        if not next_page or urlsplit(next_page).netloc != '':
             next_page = url_for('index')
         
         return redirect(next_page)
@@ -57,8 +57,7 @@ def register():
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
+        user.save()
         flash('Registration was succesful!')
         return redirect(url_for('login'))
     

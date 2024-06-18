@@ -1,15 +1,15 @@
-from app import db, lm
+from app import lm
+from mongoengine import *
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from flask_socketio import Namespace, emit, ConnectionRefusedError
 from flask_login import current_user
 import datetime
 
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), index=True, unique=True)
-    email = db.Column(db.String(120), index=True, unique=True)
-    password_hash = db.Column(db.String(128))
+class User(UserMixin, Document):
+    username = StringField(max_length=64, required=True, unique=True)
+    email = EmailField(max_length=128, required=True, unique=True)
+    password_hash = StringField(max_length=192, required=True)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -22,12 +22,11 @@ class User(UserMixin, db.Model):
 
 @lm.user_loader
 def load_user(id):
-    return User.query.get(int(id))
+    return User.objects(id=id).first()
 
 
-class Room(Namespace, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), index=True, unique=True)
+class Room(Document, Namespace):
+    name = StringField(max_length=64, required=True, unique=True)
 
     def on_connect(self, auth):
         print("Connecting to {}".format(self.name))
@@ -46,29 +45,24 @@ class Room(Namespace, db.Model):
         print("Posting to {}, msg: {}".format(self.name, data))
         if not current_user.is_authenticated:
             lm.unathorized()
-        #emit('after connect',  {'data':'Lets dance'})
         user = current_user
-        #db.session.execute(db.select(Room).filter_by(name=name)).scalar_one_or_none()
-        post = Post(user_id=user.id, room_id=self.id, date=datetime.datetime.now(), msg=data)
-        db.session.add(post)
-        db.session.commit()
+        post = Post(user=user, room=self, date=datetime.datetime.now(), msg=data)
+        post.save()
         emit('feed_update', post.webview(), broadcast=True)
 
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
-    room_id = db.Column(db.Integer, nullable=False)
-    date = db.Column(db.DateTime(), nullable=False)
-    msg = db.Column(db.String(256), nullable=False)
+class Post(Document):
+    user = ReferenceField('User', required=True)
+    room = ReferenceField('Room', required=True)
+    date = DateTimeField(required=True)
+    msg = StringField(max_length=256, required=True)
 
     def username(self):
-        return db.session.execute(db.select(User).filter_by(id=self.user_id)).scalar_one().username
+        return self.user.username
     
     def pretty_date(self):
         return '{:%Y-%m-%d %H:%M}'.format(self.date)
 
     def webview(self):
-        #user = User.query.filter_by(username=form.username.data).first()
         return "{} on {} said: {}".format(self.username(), self.pretty_date(), self.msg)
     
     def as_dict(self):

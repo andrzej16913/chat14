@@ -1,4 +1,4 @@
-from app import db, rooms
+from app import rooms
 from app.models import Room
 
 # If you want to add new rooms, write theri names in 'quotation marks'
@@ -14,9 +14,8 @@ if __name__ == '__main__':
 
     for name in names:
         if name not in occupied:
-            room = Room()
-            room.name = name
-            db.session.add(room)
-            db.session.commit()
+            room = Room(name=name)
+            #room.name = name
+            room.save()
             print('Created new room: {}'.format(name))
 
